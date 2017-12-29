@@ -11,6 +11,7 @@ app.use(function(req, res, next) {
 });
 
 var mongoose = require('mongoose')
+mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/betelife', { useMongoClient: true })
 
 var db = mongoose.connection
@@ -34,23 +35,59 @@ db.once('open', () => {
 		mae_religiao: String,
 		escola: String,
 		serie: String,
-		repetente: Boolean,
-		ja_aluno: Boolean,
-		problema_saude: Boolean,
-		problema_saude_qual: { type: String, default: 'Não possui' },
-		medicamento_usa: Boolean,
-		medicamento_qual: { type: String, default: 'Não utiliza' },
+		repetente: { type: Boolean, default: false },
+		ja_aluno: { type: Boolean, default: false },
+		problema_saude: { type: Boolean, default: false },
+		problema_saude_qual: String,
+		medicamento_usa: { type: Boolean, default: false },
+		medicamento_qual: String,
 		remedio_febre: String,
 		recomendacao_familia: String,
-		retorna_sozinho: Boolean,
-		quem_busca: { type: String, default: 'Retorna sozinho' }
+		retorna_sozinho: { type: Boolean, default: false },
+		quem_busca: String
+	})
 
+	var volunteerSchema = mongoose.Schema({
+		nome: String,
+		nascimento: Date,
+		idade: Number,
+		escolaridade: String,
+		endereco: String,
+		telefone: String,
+		whatsapp: String,
+		email: String,
+		rg: String,
+		cpf: String,
+		igreja: String,
+		pastor: String,
+		ministerio: String,
+		medicamento_usa: { type: Boolean, default: false },
+		medicamento_qual: String,
+		medicamento_motivo: String,
+		acompanhamento: { type: Boolean, default: false },
+		acompanhamento_motivo: String,
+		experiencia: { type: Boolean, default: false },
+		experiencia_onde: String,
+		experiencia_desc: String,
+		entendimento: String,
+		principios: String,
+		submete: { type: Boolean, default: false },
+		submete_explica: String,
+		nao_faz: String,
+		expectativa: String
 	})
 
 	var Student = mongoose.model('Student', studentSchema)
+	var Volunteer = mongoose.model('Volunteer', volunteerSchema)
 
 	app.get('/students', (req, res) => {
-		res.json({msg: 'get all students'})
+		let query = Student.find()
+		query.select('nome telefone mae idade')
+
+		query.exec((err, stds) => {
+			if (err) res.send('deu ruim')
+			res.json({res: stds})
+		})
 	})
 
 	app.get('/students/:id', (req, res) => {
@@ -58,7 +95,6 @@ db.once('open', () => {
 	})
 
 	app.post('/students', (req, res) => {
-		console.log(req.body)
 		let student = new Student(req.body)
 		student.save((err, std) => {
 			if (err) res.send('deu ruim')
@@ -75,7 +111,13 @@ db.once('open', () => {
 	})
 
 	app.get('/volunteers', (req, res) => {
-		res.json({msg: 'get all volunteers'})
+		let query = Volunteer.find()
+		query.select('nome telefone idade')
+
+		query.exec((err, vlts) => {
+			if (err) res.send('deu ruim')
+			res.json({res: vlts})
+		})
 	})
 
 	app.get('/volunteers/:id', (req, res) => {
@@ -83,7 +125,11 @@ db.once('open', () => {
 	})
 
 	app.post('/volunteers', (req, res) => {
-		res.json({msg: 'save volunteer into database'})
+		let volunteer = new Volunteer(req.body)
+		volunteer.save((err, vlt) => {
+			if (err) res.send('deu ruim')
+			res.json({msg: 'saved volunteer into database'})
+		})
 	})
 
 	app.put('/volunteers', (req, res) => {
