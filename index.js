@@ -7,6 +7,8 @@ app.use(bodyParser.json())
 app.use(function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	 res.header("Access-Control-Allow-Methods", "PATCH, POST, GET, PUT, DELETE, OPTIONS"); 
+	 //if ('OPTIONS' === req.method) { return res.send(200); } 
 	next();
 });
 
@@ -107,11 +109,20 @@ db.once('open', () => {
 	})
 
 	app.put('/students', (req, res) => {
-		res.json({msg: 'update student'})
+		let query = Student.findOneAndUpdate({ '_id': req.body._id }, req.body)
+		query.exec((err, done) => {
+			if (err) res.send('deu ruim')
+			res.json({ msg: 'updated student ' })
+		})
 	})
 
 	app.delete('/students', (req, res) => {
-		res.json({msg: 'delete student from database'})
+		console.log(req.query.id)
+		query = Student.findByIdAndRemove(req.query.id)
+		query.exec((err, done) => {
+			if (err) res.send('deu ruim')
+			res.json({ msg: 'deleted student' })
+		})
 	})
 
 	app.get('/volunteers', (req, res) => {
@@ -125,7 +136,11 @@ db.once('open', () => {
 	})
 
 	app.get('/volunteers/:id', (req, res) => {
-		res.json({msg: 'get volunteer ' + req.params.id})
+		let query = Volunteer.findOne({ '_id': req.params.id })
+		query.exec((err, std) => {
+			if (err) res.send('deu ruim')
+			res.json({res: std})
+		})
 	})
 
 	app.post('/volunteers', (req, res) => {
@@ -137,11 +152,20 @@ db.once('open', () => {
 	})
 
 	app.put('/volunteers', (req, res) => {
-		res.json({msg: 'update volunteer'})
+		let query = Volunteer.findOneAndUpdate({ '_id': req.body._id }, req.body)
+		query.exec((err, done) => {
+			if (err) res.send('deu ruim')
+			res.json({ msg: 'updated student ' })
+		})
 	})
 
 	app.delete('/volunteers', (req, res) => {
-		res.json({msg: 'delete volunteer from database'})
+		console.log(req.query.id)
+		query = Volunteer.findByIdAndRemove(req.query.id)
+		query.exec((err, done) => {
+			if (err) res.send('deu ruim')
+			res.json({ msg: 'deleted volunteer' })
+		})
 	})
 
 	app.get('/', (req, res) => {
