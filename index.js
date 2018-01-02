@@ -91,7 +91,11 @@ db.once('open', () => {
 	})
 
 	app.get('/students/:id', (req, res) => {
-		res.json({msg: 'get student ' + req.params.id})
+		let query = Student.findOne({ '_id': req.params.id })
+		query.exec((err, std) => {
+			if (err) res.send('deu ruim')
+			res.json({res: std})
+		})
 	})
 
 	app.post('/students', (req, res) => {
